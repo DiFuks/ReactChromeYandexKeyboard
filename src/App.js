@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useLayoutEffect, useState} from "react";
 import {
   Box,
   Button,
@@ -8,6 +8,40 @@ import {
 } from "@mui/material";
 
 function App() {
+	const [height, setHeight] = useState();
+	const [offsetTop, setOffsetTop] = useState();
+
+	useLayoutEffect(() => {
+		const onResize = () => {
+			const calculateSize = () => {
+				if (!window.visualViewport) {
+					setHeight(undefined);
+					setOffsetTop(undefined);
+
+					return;
+				}
+
+				const newHeight = window.visualViewport.height;
+				const newOffsetTop = window.visualViewport.offsetTop;
+
+				setHeight(newHeight);
+				setOffsetTop(newOffsetTop);
+			};
+
+			calculateSize();
+
+			setTimeout(() => {
+				calculateSize();
+			}, 300);
+		};
+
+		window.visualViewport?.addEventListener('resize', onResize);
+
+		return () => {
+			window.visualViewport?.removeEventListener('resize', onResize);
+		};
+	}, []);
+
   return (
     <>
       <Container
@@ -16,7 +50,8 @@ function App() {
         sx={{
           display: "flex",
           flexDirection: "column",
-          minHeight: "100dvh",
+          height: height || "100dvh",
+					marginTop: offsetTop || 0,
           px: 2
         }}
       >
